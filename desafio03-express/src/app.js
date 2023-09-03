@@ -8,7 +8,7 @@ app.listen(port, ()=> console.log(`Escuchando puerto ${port}..`));
 
 const manager = new ProductManager("./src/productmanager/products.json");
 
-// req.query: permite establecer un limiete de productos a mostrar. Ej:   http://localhost:8080/products/?limit=4
+// req.query: permite establecer un limite de productos a mostrar. Ej:   http://localhost:8080/products/?limit=4
 app.get("/products", async (req, res) =>{
     try {
         const products = await manager.getProducts();
@@ -26,6 +26,7 @@ app.get("/products", async (req, res) =>{
     
 })
 
+// req.params: permite buscar un producto por su ID. Ej: http://localhost:8080/products/2
 app.get("/products/:pid", async (req, res)=>{
     try {
         const productById = parseInt(req.params.pid);
