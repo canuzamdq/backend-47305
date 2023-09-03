@@ -33,7 +33,7 @@ app.get("/products/:pid", async (req, res)=>{
         const product = await manager.getPtoductById(productById);
         res.send(product);
     } catch (error) {
-        res.send(error.menssage);S
+        res.send(error.menssage);
     }
     
 })
