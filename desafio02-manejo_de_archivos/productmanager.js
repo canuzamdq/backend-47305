@@ -1,4 +1,4 @@
-const fs = require("fs");
+import fs from "fs";
 
 
 class ProductManager {
@@ -86,7 +86,7 @@ class ProductManager {
             return console.log("No se encontró producto con el id indicado")
         }
 
-        return console.log(productFind); //Retorna el producto encontrado
+        return productFind; //Retorna el producto encontrado
 
         } catch (error) {
             console.log(error.menssage);
