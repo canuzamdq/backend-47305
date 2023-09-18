@@ -33,6 +33,12 @@ socketClient.on("productsEvent", (dataProducts)=> {
     });
 })
 
+//Manejar el evento de error de codigo de producto repetido al crear un producto
+socketClient.on("codeExistEvent", (errorMessage) => {
+    alert(errorMessage);
+});
+
+//Eliminar producto. Envía id de prodicto al socket del servidor. El Id viene del boton "Eliminar" de cada producto
 const deleteProduct = (productId)=> {
     socketClient.emit("deleteProductEvent", productId);
 }

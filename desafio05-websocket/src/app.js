@@ -47,14 +47,17 @@ io.on("connection", async (socket)=> {
 
         //Recibir el producto del socket cliente
         socket.on("addProductEvent", async (productData)=>{
-            await productManager.addProduct(productData);
+            try {
+                await productManager.addProduct(productData);
+                const products = await productManager.getProducts();  //Una vez que se agrega el nuevo producto volvemos a obtener todos los productos y los enviamos al socket cliente
+                io.emit("productsEvent", products); //Se utiliza "io" para enviar la informació a todos los clientes conectados
+            } catch (error) {
+                socket.emit("codeExistEvent", "El código ingresado ya existe"); // Manejo de error de codigo de producto repetido
+            }
             
-            //Una vez que se agrega el nuevo producto volvemos a obtener todos los prodictos y los enviamos al socket cliente
-            const products = await productManager.getProducts();
-            io.emit("productsEvent", products); //Se utiliza "io" para enviar la informació a todos los clientes conectados
         });
 
-        //Recibir información Id de producto para eliminarlo
+        //Recibir del socket cliente Id de producto para eliminarlo
         socket.on("deleteProductEvent", async (productId)=> {
             const pid = parseInt(productId);
             console.log("pid:", pid)
