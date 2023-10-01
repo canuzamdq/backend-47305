@@ -27,7 +27,7 @@ socketClient.on("productsEvent", (dataProducts)=> {
     dataProducts.forEach(element => {
         productsElement +=
         `<li>
-            <p>Nombre: ${element.title} / Precio: $${element.price}</p> <button onclick=deleteProduct(${element.id})>Eliminar</button>
+            <p>Nombre: ${element.title} / Precio: $${element.price}</p> <button onclick=deleteProduct(${element._id})>Eliminar</button>
         </li>`
         productsList.innerHTML = productsElement; 
     });

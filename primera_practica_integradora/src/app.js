@@ -1,14 +1,14 @@
 import express from "express";
 import { engine } from 'express-handlebars';
 import { Server } from "socket.io";
-import { productManager } from "./managers/index.js";
+import { productService, chatService } from "./dao/index.js";
 import { __dirname } from "./utils.js";
 import path from "path";
+import { connectDB } from "./config/dbConnection.js";
 
 import { viewsRouter } from "./routes/views.routes.js";
 import { productsRouter } from "./routes/products.routes.js";
 import { cartsRouter } from "./routes/carts.routes.js";
-
 
 //Servidor express
 const app = express();
@@ -19,6 +19,9 @@ const httpServer = app.listen(port, ()=> console.log(`Servidor ejecutándose en 
 //Servidor websocket
 const io = new Server(httpServer);
 
+//Conexión a base de datos
+connectDB();
+
 //Middelware para parseo de json
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
@@ -26,7 +29,8 @@ app.use(express.urlencoded({extended: true}));
 //Middelware carpeta public
 app.use(express.static(path.join(__dirname,"/public")));
 
-//Vonfiguracion del motor de plantillas
+
+//Configuracion del motor de plantillas
 app.engine('.hbs', engine({extname: '.hbs'}));
 app.set('view engine', '.hbs');
 app.set('views', path.join(__dirname,"/views")); //=> /src/views
@@ -42,14 +46,14 @@ app.use ("/api/carts", cartsRouter);
 io.on("connection", async (socket)=> {
     try {
         console.log("Cliente conectado");
-        const products = await productManager.getProducts();
+        const products = await productService.getProducts();
         socket.emit("productsEvent", products);
 
         //Recibir el producto del socket cliente
         socket.on("addProductEvent", async (productData)=>{
             try {
-                await productManager.addProduct(productData);
-                const products = await productManager.getProducts();  //Una vez que se agrega el nuevo producto volvemos a obtener todos los productos y los enviamos al socket cliente
+                await productService.addProduct(productData);
+                const products = await productService.getProducts();  //Una vez que se agrega el nuevo producto volvemos a obtener todos los productos y los enviamos al socket cliente
                 io.emit("productsEvent", products); //Se utiliza "io" para enviar la informació a todos los clientes conectados
             } catch (error) {
                 socket.emit("codeExistEvent", "El código ingresado ya existe"); // Manejo de error de codigo de producto repetido
@@ -59,11 +63,11 @@ io.on("connection", async (socket)=> {
 
         //Recibir del socket cliente Id de producto para eliminarlo
         socket.on("deleteProductEvent", async (productId)=> {
-            const pid = parseInt(productId);
-            // console.log("pid:", pid)
-            await productManager.deleteProduct(pid);
+            const pId = productId;
+            // console.log("pid:", pId)
+            await productService.deleteProduct(pId);
 
-            const products = await productManager.getProducts();
+            const products = await productService.getProducts();
             io.emit("productsEvent", products);
         })
     } catch (error) {
@@ -72,6 +76,30 @@ io.on("connection", async (socket)=> {
     
     
 });
+
+
+// Applicación de CHAT
+
+const messages = [];
+
+io.on('connection', (socket) => {
+	// Envio los mensajes al cliente que se conectó
+	socket.emit('messages', messages);
+
+	// Escucho los mensajes enviado por el cliente y se los propago a todos
+	socket.on('messageClient', (message) => {
+		console.log(message);
+		// Agrego el mensaje al array de mensajes
+		messages.push(message);
+		// Propago el evento a todos los clientes conectados
+		io.emit('messages', messages);
+	});
+
+	socket.on('login', (data) => {
+		socket.broadcast.emit('connected', data);
+	});
+});
+
 
 
 
