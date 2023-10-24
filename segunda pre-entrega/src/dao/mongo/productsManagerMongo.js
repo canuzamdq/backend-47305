@@ -15,6 +15,16 @@ export class ProductManagerMongo {
         }
     };
 
+    async getProductsPaginate(query, options){
+        try {
+            const result = await this.model.paginate(query, options);
+            return result;
+        } catch (error) {
+            console.log("getProductsPaginate: ", error.message);
+            throw new Error("Se produjo un error al intentar obterner los productos");
+        }
+    };
+
     async addProduct(productInfo) {
         try {
             const result = await this.model.create(productInfo);

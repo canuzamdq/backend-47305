@@ -64,7 +64,7 @@ io.on("connection", async (socket)=> {
         //Recibir del socket cliente Id de producto para eliminarlo
         socket.on("deleteProductEvent", async (productId)=> {
             const pId = productId;
-            // console.log("pid:", pId)
+            console.log("pid:", pId)
             await productService.deleteProduct(pId);
 
             const products = await productService.getProducts();

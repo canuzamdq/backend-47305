@@ -1,11 +1,17 @@
 <div>
     <h2>Listado de productos:</h2>
-    {{#each products}}
+    {{#each payload}}
         <div class="cardProduct">
             <p>Nombre del producto: {{this.title}}</p> 
             <p>Descripción: {{this.description}}</p> 
             <p>Precio: ${{this.price}}</p>
+            <button id="btnAddToCart" onclick="addToCart(`{{this._id}}`)">Agregar al Carrito</button>
         </div>
         
     {{/each}}
 </div>
+
+<a href="{{prevLink}}">Anterior</a>
+<a href="{{nextLink}}">siguiente</a>
+
+<script src="/js/home.js"></script>
